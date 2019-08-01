@@ -13,8 +13,9 @@ class InfiniteTwoSidedScrollView<T: UIView>: UIScrollView {
     // MARK: Properties
     
     let containerView = UIView()
-    
-    
+    var specialView: UIView?
+    var specialViewPosition: CGPoint?
+  
     // MARK: Init
     
     required init(frame: CGRect, height: CGFloat) {
@@ -65,10 +66,13 @@ class InfiniteTwoSidedScrollView<T: UIView>: UIScrollView {
         let centerOffsetX = (contentSize.width - self.bounds.width) / 2.0
         let horizontalOffsetDifference = contentOffset.x - centerOffsetX
         
-        if horizontalOffsetDifference != 0.0 {
+        if abs(horizontalOffsetDifference) > 50.0 {
             contentOffset.x = centerOffsetX
-            
             moveAndDeleteViewsOfTypeT(horizontalOffsetDifference: horizontalOffsetDifference)
+        }
+          
+        if let sv = specialView, let pos = specialViewPosition {
+            sv.frame.origin.x = contentOffset.x + pos.x
         }
     }
     
@@ -91,7 +95,9 @@ class InfiniteTwoSidedScrollView<T: UIView>: UIScrollView {
         var furthestLeftPoint = contentOffset.x + UIScreen.main.bounds.width
         
         for view in containerView.subviews {
-            furthestLeftPoint = min(furthestLeftPoint, view.frame.origin.x)
+            if view is T {
+                furthestLeftPoint = min(furthestLeftPoint, view.frame.origin.x)
+            }
         }
         
         while furthestLeftPoint > contentOffset.x {
@@ -105,7 +111,9 @@ class InfiniteTwoSidedScrollView<T: UIView>: UIScrollView {
         var furthestRightPoint = contentOffset.x
         
         for view in containerView.subviews {
-            furthestRightPoint = max(furthestRightPoint, view.frame.origin.x + view.bounds.width)
+            if view is T {
+                furthestRightPoint = max(furthestRightPoint, view.frame.origin.x + view.bounds.width)
+            }
         }
         
         while furthestRightPoint < contentOffset.x + UIScreen.main.bounds.width {

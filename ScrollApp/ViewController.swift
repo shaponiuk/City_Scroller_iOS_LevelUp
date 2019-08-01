@@ -22,18 +22,21 @@ class ViewController: UIViewController {
     // MARK: Methods
     
     private func makeAndPrepareMoon() {
+        moonPositionInView = CGPoint(x: 100.0, y: 100.0)
         let initialLocationInViewCoordinates = CGPoint(x: scrollView.contentOffset.x + 100.0,
                                                        y: scrollView.contentOffset.y + 100.0)
         let moon = Moon(radius: 50.0, center: initialLocationInViewCoordinates)
         
         scrollView.containerView.addSubview(moon)
+        scrollView.specialView = moon
+        scrollView.specialViewPosition = moonPositionInView
         
         let longPressMoonGestureRecogniser = UILongPressGestureRecognizer(target: self, action: #selector(longPressMoonHandler(_:)))
         longPressMoonGestureRecogniser.minimumPressDuration = 0.3
         moon.addGestureRecognizer(longPressMoonGestureRecogniser)
         
         self.moon = moon
-        moonPositionInView = CGPoint(x: 100.0, y: 100.0)
+
     }
     
     @objc private func longPressMoonHandler(_ sender: UILongPressGestureRecognizer) {
@@ -57,6 +60,8 @@ class ViewController: UIViewController {
         case .changed:
             let locationInView = sender.location(in: self.view)
             
+            
+            
             if let locationInMoonCenter = locationInMoonCenter {
                 let newLocation = CGPoint(x: locationInView.x - locationInMoonCenter.x,
                                           y: locationInView.y - locationInMoonCenter.y)
@@ -64,6 +69,7 @@ class ViewController: UIViewController {
                                       y: scrollView.contentOffset.y + newLocation.y)
                 
                 moonPositionInView = newLocation
+                scrollView.specialViewPosition = moonPositionInView
             }
         case .ended:
             UIView.animate(withDuration: 0.2, animations: {
